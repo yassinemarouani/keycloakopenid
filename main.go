@@ -36,6 +36,7 @@ func (k *keycloakAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			qry.Del("code")
 			qry.Del("state")
 			qry.Del("session_state")
+			qry.Del("iss")
 			req.URL.RawQuery = qry.Encode()
 			req.RequestURI = req.URL.RequestURI()
 
@@ -120,6 +121,7 @@ func (k *keycloakAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		qry.Del("code")
 		qry.Del("state")
 		qry.Del("session_state")
+		qry.Del("iss")
 		req.URL.RawQuery = qry.Encode()
 		req.RequestURI = req.URL.RequestURI()
 
@@ -197,6 +199,10 @@ func (k *keycloakAuth) exchangeAuthCode(req *http.Request, authCode string, stat
 func (k *keycloakAuth) redirectToKeycloak(rw http.ResponseWriter, req *http.Request) {
 	scheme := req.Header.Get("X-Forwarded-Proto")
 	host := req.Header.Get("X-Forwarded-Host")
+	qry := req.URL.Query()
+	qry.Del("iss")
+	req.URL.RawQuery = qry.Encode()
+	req.RequestURI = req.URL.RequestURI()
 	originalURL := fmt.Sprintf("%s://%s%s", scheme, host, req.RequestURI)
 	query := req.URL.Query()
 	kcIdpHint := query.Get("idp")
